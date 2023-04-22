@@ -106,7 +106,7 @@ abstract class Painkillers implements PharmaceuticalsDatabase {
       if (this.isExpired()) {
         console.log("This medication has expired and should be discarded.");
       } else {
-        console.log(`A total of ${this.price*amount} ${this.brandName} hass been sold.`);
+        console.log(`A total of ${this.price*amount} ${this.brandName} has been sold.`);
       }
   }
 
