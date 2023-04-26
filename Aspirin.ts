@@ -1,4 +1,4 @@
-import { Painkillers } from './CodeMain';
+import { Painkillers } from "./CodeMain";
 
 class Aspirin extends Painkillers {
   private formulation: string;
@@ -36,6 +36,14 @@ class Aspirin extends Painkillers {
     );
     this.formulation = formulation;
   }
+// getters setters + new methods
+  set medicationSideEffects(medicationSideEffectsNew: string[]) {
+    this.medicationSideEffects = medicationSideEffectsNew;
+  }
+
+  get medicationSideEffects(): string[] {
+    return this.medicationSideEffects;
+  }
 
   getFormulation(): string {
     return this.formulation;
@@ -45,21 +53,88 @@ class Aspirin extends Painkillers {
     this.formulation = formulation;
   }
 
+  calculateDailyDosage(weight: number, age: number): string {
+    return `${weight * (age / 4)}mg`;
+  }
+
+  // Implemented methods with new function
   treatPain(): void {
     console.log(`Taking ${this.brandName} can relieve pain.`);
   }
 
-  otherBenificalEffects(): string[] {
-    return [
-      `Antiplatelet effects: \nAspirin can prevent blood clotting by reducing the stickiness of platelets,\n which can help prevent heart attacks and strokes \nCardiovascular protection: \nAspirin can reduce the risk of heart attack, stroke, and \n other cardiovascular events by reducing inflammation, \npreventing blood clots, and improving blood flow.`,
-    ];
+  otherBenificalEffects(): string {
+    return `Antiplatelet effects: \nAspirin can prevent blood clotting by reducing the stickiness of platelets,\n which can help prevent heart attacks and strokes \nCardiovascular protection: \nAspirin can reduce the risk of heart attack, stroke, and \n other cardiovascular events by reducing inflammation, \npreventing blood clots, and improving blood flow.`;
   }
 
-  set medicationSideEffects(medicationSideEffectsNew: string[]) {
-    this.medicationSideEffects = medicationSideEffectsNew;
+  daysToExpiry(expiryDate: Date) {
+    const currentDate = new Date();
+    const timeDiff = Math.abs(expiryDate.getTime() - currentDate.getTime());
+    const days = Math.floor(timeDiff / (24 * 60 * 60 * 1000));
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+    if (years > 0) {
+      const remainingMonths = months % 12;
+      return `${years} year${years > 1 ? "s" : ""}, ${remainingMonths} month${
+        remainingMonths > 1 ? "s" : ""
+      }`;
+    } else if (months > 0) {
+      const remainingDays = days % 30;
+      return `${months} month${months > 1 ? "s" : ""}, ${remainingDays} day${
+        remainingDays > 1 ? "s" : ""
+      }`;
+    } else {
+      return `${days} day${days > 1 ? "s" : ""}`;
+    }
   }
 
-  get medicationSideEffects(): string[] {
-    return this.medicationSideEffects;
+  calculateMarkupNew(discount: string): number {
+    //WithDiscount input: ex. 70% => 0.7
+    return (
+      this.calculateMarkup() -
+      (this.price -
+        this.retailPrice * (parseInt(discount.replace("%", "")) / 100))
+    );
+  }
+
+  display(): void {
+    console.log(`Brand Name: ${this.brandName}`);
+    console.log(`Generic Name: ${this.genericName}`);
+    console.log(`Formulation: ${this.formulation}`);
+    console.log(`Stock: ${this.stock}`);
+    console.log(`Price: ${this.price}`);
+    console.log(`Retail Price: ${this.retailPrice}`);
+    console.log(`Manufacturer: ${this.manufacturer}`);
+    console.log(`Expiry Date: ${this.expiryDate.toDateString()}`);
+    console.log(`Active Ingredients: ${this.activeIngredients.join(", ")}`);
+    console.log(`Prescription Required: ${this.prescriptionRequired}`);
+    console.log(`Crushable: ${this.crushable}`);
+    console.log(`Storage Instructions: ${this.storageInstructions}`);
+    console.log(`Drug Purpose: ${this.drugPurpose}`);
+    console.log(`Warnings: ${this.warnings.join(", ")}`);
+    console.log(`Side Effects: ${this.medicationSideEffects.join(", ")}`);
   }
 }
+
+let AcyAsipirin = new Aspirin(
+  100,
+  5.99,
+  9.99,
+  "Bayer",
+  new Date("2024-12-31"),
+  ["Aspirin"],
+  false,
+  "Aspirin",
+  "Acetylsalicylic Acid",
+  true,
+  "Store in a cool, dry place",
+  "Pain relief",
+  ["May cause stomach irritation"],
+  "Tablet"
+);
+// test
+console.log(AcyAsipirin.daysToExpiry(new Date("2024-12-31")));
+console.log(AcyAsipirin.calculateMarkupNew("50%"));
+
+console.log(AcyAsipirin.otherBenificalEffects());
+AcyAsipirin.treatPain();
+AcyAsipirin.display();
