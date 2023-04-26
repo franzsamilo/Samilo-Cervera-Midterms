@@ -16,7 +16,7 @@ interface PharmaceuticalsDatabase {
   calculateMarkup(): number;
   containsActiveIngredient(activeIngredients: string): boolean;
   canBeCrushed(): string;
-  daysToExpiry(expiryDate: Date): number;
+  daysToExpiry(expiryDate: Date): string;
   viewStorageInstructions(): string;
   viewDrugPurpose(): string;
   viewWarnings(): string[];
@@ -150,7 +150,7 @@ export abstract class Painkillers implements PharmaceuticalsDatabase {
     return crushOutputString;
   }
 
-  daysToExpiry(expiryDate: Date): number {
+  daysToExpiry(expiryDate: Date): string {
     const oneDay = 24 * 60 * 60 * 1000;
     const currentDate = new Date();
     const timeDiff = Math.abs(expiryDate.getTime() - currentDate.getTime());
