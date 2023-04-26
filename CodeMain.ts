@@ -1,36 +1,61 @@
 interface PharmaceuticalsDatabase {
-  get Stock();
-  set Stock(amount: number);
-  get Price(): number;
-  set Price(price: number);
-  get RetailPrice(): number;
-  set RetailPrice(price: number)
-  get Manufacturer(): string;
-  get ExpiryDate(): Date;
-  set ExpiryDate(expiryDate: Date);
-  get ActiveIngredients(): string[];
-  get BrandName(): string;
-  get GenericName(): string;
+  viewStock(): number;
+  changeStockValue(amount: number): void;
+  viewPrice(): number;
+  changePrice(price: number): void;
+  viewRetailPrice(): number;
+  changeRetailPrice(price: number): void;
+  viewManufacturer(): string;
+  viewExpiryDate(): Date;
+  changeExpiryDate(expiryDate: Date): Date;
+  viewActiveIngredients(): string[];
+  viewBrandName(): string;
+  viewGenericName(): string;
   isPrescriptionRequired(): boolean;
   isExpired(): boolean;
   calculateMarkup(): number;
-  containsActiveIngredient(activeIngredient: string): boolean;
+  containsActiveIngredient(activeIngredients: string): boolean;
+  canBeCrushed(): string;
+  daysToExpiry(expiryDate: Date): number;
+  viewStorageInstructions(): string;
+  viewDrugPurpose(): string;
+  viewWarnings(): string[];
 }
 
-abstract class Painkillers implements PharmaceuticalsDatabase {
-  private stock: number;
-  private price: number;
-  private retailPrice: number; 
-  private manufacturer: string;
-  private expiryDate: Date;
-  private activeIngredients: string[];
-  private prescriptionRequired: boolean;
+export abstract class Painkillers implements PharmaceuticalsDatabase {
+  protected stock: number;
+  protected price: number;
+  protected retailPrice: number;
+  protected manufacturer: string;
+  protected expiryDate: Date;
+  protected activeIngredients: string[];
+  protected prescriptionRequired: boolean;
   public brandName: string;
   public genericName: string;
-  private usageInstructions: string;
-  
-  constructor( price: number, manufacturer: string, expiryDate: Date, activeIngredients: string[], prescriptionRequired: boolean, brandName: string, genericName: string) {
+  protected usageInstructions: string;
+  protected crushable: boolean;
+  protected storageInstructions: string;
+  protected drugPurpose: string;
+  protected warnings: string[];
+
+  constructor(
+    stock: number,
+    price: number,
+    retailPrice: number,
+    manufacturer: string,
+    expiryDate: Date,
+    activeIngredients: string[],
+    prescriptionRequired: boolean,
+    brandName: string,
+    genericName: string,
+    crushable: boolean,
+    storageInstructions: string,
+    drugPurpose: string,
+    warnings: string[]
+  ) {
+    this.stock = stock;
     this.price = price;
+    this.retailPrice = retailPrice;
     this.manufacturer = manufacturer;
     this.expiryDate = expiryDate;
     this.activeIngredients = activeIngredients;
@@ -38,55 +63,60 @@ abstract class Painkillers implements PharmaceuticalsDatabase {
     this.brandName = brandName;
     this.genericName = genericName;
     this.usageInstructions = "";
-    this.activeIngredients = this.ActiveIngredients;
+    this.activeIngredients = activeIngredients;
+    this.crushable = crushable;
+    this.storageInstructions = storageInstructions;
+    this.drugPurpose = drugPurpose;
+    this.warnings = warnings;
   }
 
-  get Stock(): number {
+  viewStock(): number {
     return this.stock;
   }
 
-  set Stock(amount: number) {
+  changeStockValue(amount: number): void {
     this.stock = amount;
   }
 
-  get Price(): number {
+  viewPrice(): number {
     return this.price;
   }
-  
-  set Price(price: number) {
-      this.price = price;
+
+  changePrice(price: number): void {
+    this.price = price;
   }
 
-  get RetailPrice(): number {
+  viewRetailPrice(): number {
     return this.retailPrice;
   }
 
-  set RetailPrice(price: number) {
+  changeRetailPrice(price: number): void {
     this.retailPrice = price;
   }
-  get Manufacturer(): string {
+  viewManufacturer(): string {
     return this.manufacturer;
   }
 
-  get ExpiryDate(): Date {
+  viewExpiryDate(): Date {
     return this.expiryDate;
   }
 
-  set ExpiryDate(expiryDate: Date) {
+  changeExpiryDate(expiryDate: Date): Date {
     this.expiryDate = expiryDate;
+    return expiryDate;
   }
 
-  get ActiveIngredients(): string[] {
+  viewActiveIngredients(): string[] {
     return this.activeIngredients;
   }
 
-  get BrandName(): string {
-      return this.brandName;
-    }
-  
-  get GenericName(): string {
-      return this.genericName;
-    }
+  viewBrandName(): string {
+    return this.brandName;
+  }
+
+  viewGenericName(): string {
+    return this.genericName;
+  }
 
   isPrescriptionRequired(): boolean {
     return this.prescriptionRequired;
@@ -98,32 +128,78 @@ abstract class Painkillers implements PharmaceuticalsDatabase {
   }
 
   calculateMarkup(): number {
-      const costPrice = this.Price;
-      const retailPrice = this.RetailPrice;
-      return ((retailPrice - costPrice) / costPrice) * 100;
-    }
-  
-    containsActiveIngredient(activeIngredient: string): boolean {
-      return this.ActiveIngredients.includes(activeIngredient);
-    }
+    const costPrice = this.price;
+    const retailPrice = this.retailPrice;
+    return ((retailPrice - costPrice) / costPrice) * 100;
+  }
 
-  public setUsageInstructions(instructions: string): void {
+  containsActiveIngredient(activeIngredient: string): boolean {
+    return this.activeIngredients.includes(activeIngredient);
+  }
+
+  canBeCrushed(): string {
+    let crushOutputString: string = "";
+    if (this.isExpired()) {
+      return "This medication has expired and should be discarded.";
+    } else if (this.crushable === true) {
+      crushOutputString =
+        "This medication is safe and can be crushed into a powder";
+    } else {
+      crushOutputString = "Crushing this medication can have adverse effects";
+    }
+    return crushOutputString;
+  }
+
+  daysToExpiry(expiryDate: Date): number {
+    const oneDay = 24 * 60 * 60 * 1000;
+    const currentDate = new Date();
+    const timeDiff = Math.abs(expiryDate.getTime() - currentDate.getTime());
+    return Math.ceil(timeDiff / oneDay);
+  }
+
+  setStorageInstructions(storageInstructionsSet: string): void {
+    this.storageInstructions = storageInstructionsSet;
+  }
+
+  viewStorageInstructions(): string {
+    return this.storageInstructions;
+  }
+
+  setWarnings(warningsSet: string[]): void {
+    this.warnings = warningsSet;
+  }
+
+  viewWarnings(): string[] {
+    return this.warnings;
+  }
+
+  setDrugPurpose(drugPurposeSet: string): void {
+    this.drugPurpose = drugPurposeSet;
+  }
+
+  viewDrugPurpose(): string {
+    return this.drugPurpose;
+  }
+
+  setUsageInstructions(instructions: string): void {
     this.usageInstructions = instructions;
   }
 
-  public getUsageInstructions(): string {
+  viewUsageInstructions(): string {
     return this.usageInstructions;
   }
 
-  public sell(amount: number): void {
-      if (this.isExpired()) {
-        console.log("This medication has expired and should be discarded.");
-      } else {
-        console.log(`A total of ${this.price*amount} ${this.brandName} has been sold.`);
-      }
+  sell(amount: number): void {
+    if (this.isExpired()) {
+      console.log("This medication has expired and should be discarded.");
+    } else {
+      console.log(
+        `A total of ${this.price * amount} ${this.brandName} has been sold.`
+      );
+    }
   }
 
-  public discardMedication(): void {
+  discardMedication(): void {
     if (this.isExpired()) {
       console.log(`${this.brandName} has been discarded due to expiration.`);
     } else {
@@ -131,16 +207,14 @@ abstract class Painkillers implements PharmaceuticalsDatabase {
     }
   }
 
-  public restock(amount: number): void {
+  restock(amount: number): void {
     this.stock += amount;
-    console.log(`Restocked ${amount} of ${this.brandName} from ${this.manufacturer}.`);
+    console.log(
+      `Restocked ${amount} of ${this.brandName} from ${this.manufacturer}.`
+    );
   }
 
-  public abstract treatPain(): void;
-  public abstract get medicationSideEffects(): string[];
-  public abstract otherEffects(): string[];
+  abstract treatPain(): void;
+  abstract get medicationSideEffects(): string[];
+  abstract otherBenificalEffects(): string[];
 }
-
-  
-
-
