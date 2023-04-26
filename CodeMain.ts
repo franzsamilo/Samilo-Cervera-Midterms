@@ -154,7 +154,7 @@ export abstract class Painkillers implements PharmaceuticalsDatabase {
     const oneDay = 24 * 60 * 60 * 1000;
     const currentDate = new Date();
     const timeDiff = Math.abs(expiryDate.getTime() - currentDate.getTime());
-    return (`${Math.ceil(timeDiff / oneDay)} day/s`);
+    return `${Math.ceil(timeDiff / oneDay)} day/s`;
   }
 
   setStorageInstructions(storageInstructionsSet: string): void {
@@ -216,5 +216,5 @@ export abstract class Painkillers implements PharmaceuticalsDatabase {
 
   abstract treatPain(): void;
   abstract get medicationSideEffects(): string[];
-  abstract otherBenificalEffects(): string[];
+  abstract otherBenificalEffects(): string;
 }
